@@ -8,36 +8,36 @@ local playerLevel = UnitLevel('player')
 local poisons = {
 	['woundPoison'] = {
 		[10918] = {['level']=32, ['reagent']={{['id']=2930,['count']=1},{['id']=3372,['count']=1}}},
-		[10920] = {['level']=40, ['reagent']={}},
-		[10921] = {['level']=48, ['reagent']={}},
-		[10922] = {['level']=56, ['reagent']={}},
+		[10920] = {['level']=40, ['reagent']={{['id']=2930,['count']=1},{['id']=5173,['count']=1},{['id']=3372,['count']=1}}},
+		[10921] = {['level']=48, ['reagent']={{['id']=8923,['count']=1},{['id']=8925,['count']=1}}},
+		[10922] = {['level']=56, ['reagent']={{['id']=8923,['count']=1},{['id']=5173,['count']=1},{['id']=8925,['count']=1}}},
 		[22055] = {['level']=64, ['reagent']={{['id']=8923,['count']=2},{['id']=8925,['count']=1}}},
 	},
 	['deadlyPoison'] = {
-		[2892] = {['level']=30, ['reagent']={}},
-		[2893] = {['level']=38, ['reagent']={}},
-		[8984] = {['level']=46, ['reagent']={}},
-		[8985] = {['level']=54, ['reagent']={}},
-		[20844] = {['level']=60, ['reagent']={}},
-		[22053] = {['level']=62, ['reagent']={}},
+		[2892] = {['level']=30, ['reagent']={{['id']=5173,['count']=1},{['id']=3372,['count']=1}}},
+		[2893] = {['level']=38, ['reagent']={{['id']=5173,['count']=2},{['id']=3372,['count']=1}}},
+		[8984] = {['level']=46, ['reagent']={{['id']=5173,['count']=1},{['id']=8925,['count']=1}}},
+		[8985] = {['level']=54, ['reagent']={{['id']=5173,['count']=2},{['id']=8925,['count']=1}}},
+		[20844] = {['level']=60, ['reagent']={{['id']=5173,['count']=2},{['id']=8925,['count']=1}}},
+		[22053] = {['level']=62, ['reagent']={{['id']=2931,['count']=1},{['id']=8925,['count']=1}}},
 		[22054] = {['level']=70, ['reagent']={{['id']=2931,['count']=1},{['id']=8925,['count']=1}}},
 	},
 	['instantPoison'] = {
-		[6947] = {['level']=20, ['reagent']={}},
-		[6949] = {['level']=28, ['reagent']={}},
-		[6950] = {['level']=36, ['reagent']={}},
-		[8926] = {['level']=44, ['reagent']={}},
-		[8927] = {['level']=52, ['reagent']={}},
-		[8928] = {['level']=60, ['reagent']={}},
+		[6947] = {['level']=20, ['reagent']={{['id']=2928,['count']=1},{['id']=3372,['count']=1}}},
+		[6949] = {['level']=28, ['reagent']={{['id']=2928,['count']=1},{['id']=3372,['count']=1}}},
+		[6950] = {['level']=36, ['reagent']={{['id']=8924,['count']=2},{['id']=3372,['count']=1}}},
+		[8926] = {['level']=44, ['reagent']={{['id']=8924,['count']=1},{['id']=8925,['count']=1}}},
+		[8927] = {['level']=52, ['reagent']={{['id']=8924,['count']=2},{['id']=8925,['count']=1}}},
+		[8928] = {['level']=60, ['reagent']={{['id']=8924,['count']=2},{['id']=8925,['count']=1}}},
 		[21927] = {['level']=68, ['reagent']={{['id']=2931,['count']=1},{['id']=8925,['count']=1}}},
 	},
 	['cripplingPoison'] = {
-		[3775] = {['level']=20, ['reagent']={}},
+		[3775] = {['level']=20, ['reagent']={{['id']=2930,['count']=1},{['id']=3371,['count']=1}}},
 		[3776] = {['level']=50, ['reagent']={{['id']=8923,['count']=1},{['id']=8925,['count']=1}}},
 	},
 	['mindNumbingPoison'] = {
-		[5237] = {['level']=24, ['reagent']={}},
-		[6951] = {['level']=38, ['reagent']={}},
+		[5237] = {['level']=24, ['reagent']={{['id']=2928,['count']=1},{['id']=3371,['count']=1}}},
+		[6951] = {['level']=38, ['reagent']={{['id']=8923,['count']=1},{['id']=3372,['count']=1}}},
 		[9186] = {['level']=52, ['reagent']={{['id']=8923,['count']=1},{['id']=8925,['count']=1}}},
 	},
 	['flashPowder'] = {
@@ -344,22 +344,24 @@ function addon:CheckMerchantItems()
 	local merchantList = {}
 	
 	for i = 1, items, 1 do
-		id = self:ParseLink(GetMerchantItemLink(i))
-		_, _, price, quantity = GetMerchantItemInfo(i)
-		_, _, _, _, _, _, _, stackCount = GetItemInfo(id)
-		buyIndex = self:contains(buylist, id)
-		if buyIndex then
-			if quantity > 1 then
-				buylist[buyIndex].count = buylist[buyIndex].count / quantity
+		if GetMerchantItemLink(i) then
+			id = self:ParseLink(GetMerchantItemLink(i))
+			_, _, price, quantity = GetMerchantItemInfo(i)
+			_, _, _, _, _, _, _, stackCount = GetItemInfo(id)
+			buyIndex = self:contains(buylist, id)
+			if buyIndex then
+				if quantity > 1 then
+					buylist[buyIndex].count = buylist[buyIndex].count / quantity
+				end
+				tinsert(merchantList, {i, buylist[buyIndex].count})
+				--print('need to buy '..buylist[buyIndex].count..'x '..self:ToLink(buylist[buyIndex].id))
+				slots = slots + (ceil(buylist[buyIndex].count / stackCount))
 			end
-			tinsert(merchantList, {i, buylist[buyIndex].count})
-			--print('need to buy '..buylist[buyIndex].count..'x '..self:ToLink(buylist[buyIndex].id))
-			slots = slots + (ceil(buylist[buyIndex].count / stackCount))
 		end
 	end
 	
 	if slots > 0 and self:EmptySlots() < slots then
-		print('Not enough bag space to buy reagent')
+		DEFAULT_CHAT_FRAME:AddMessage('Not enough bag space to buy reagent')
 		return
 	end
 	
